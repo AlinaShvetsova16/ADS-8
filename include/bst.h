@@ -1,107 +1,67 @@
 // Copyright 2021 NNTU-CS
 #ifndef INCLUDE_BST_H_
 #define INCLUDE_BST_H_
-
+#include <iostream>
 #include <string>
-
-template<typename T>
+#include <vector>
+template <typename T>
 class BST {
-private:
+ public:
     struct Node {
         T key;
         int count;
         Node* left;
         Node* right;
-
-        Node(const T& k) : key(k), count(1), left(nullptr), right(nullptr) {}
+        explicit Node(T value) : key(value), count(1), left(nullptr), right(nullptr) {}
     };
 
+ private:
     Node* root;
+    void clear(Node* node) {
+        if (node != nullptr) {
+            clear(node->left);
+            clear(node->right);
+            delete node;
+        }
+    }
+    int getDepth(Node* node) const {
+        if (node == nullptr) return -1;
+        int leftDepth = getDepth(node->left);
+        int rightDepth = getDepth(node->right);
+        return 1 + (leftDepth > rightDepth ? leftDepth : rightDepth);
+    }
+    Node* searchNode(Node* node, const T& value) const {
+        if (node == nullptr || node->key == value) return node;
+        if (value < node->key) return searchNode(node->left, value);
+        return searchNode(node->right, value);
+    }
+    Node* insertNode(Node* node, const T& value) {
+        if (node == nullptr) return new Node(value);
+        if (value == node->key) node->count++;
+        else if (value < node->key) node->left = insertNode(node->left, value);
+        else node->right = insertNode(node->right, value);
+        return node;
+    }
+    void collectNodes(Node* node, std::vector<Node*>& nodes) const {
+        if (node == nullptr) return;
+        collectNodes(node->left, nodes);
+        nodes.push_back(node);
+        collectNodes(node->right, nodes);
+    }
 
-    void insert(Node*& node, const T& value);
-    bool search(Node* node, const T& value) const;
-    int depth(Node* node) const;
-    void inorderTraverse(Node* node, std::vector<std::pair<T, int>>& result) const;
-    void clear(Node* node);
-
-public:
+ public:
     BST() : root(nullptr) {}
     ~BST() { clear(root); }
-
-    void insert(const T& value);
-    bool search(T value) const;
-    int depth() const;
-    void getFrequencies(std::vector<std::pair<T, int>>& freqs) const;
+    void insert(const T& value) { root = insertNode(root, value); }
+    int depth() const { return getDepth(root); }
+    int search(T value) const {
+        Node* res = searchNode(root, value);
+        return res != nullptr ? res->count : 0;
+    }
+    std::vector<Node*> getAllNodes() const {
+        std::vector<Node*> nodes;
+        collectNodes(root, nodes);
+        return nodes;
+    }
 };
-
-template<typename T>
-void BST<T>::insert(Node*& node, const T& value) {
-    if (!node) {
-        node = new Node(value);
-        return;
-    }
-
-    if (value == node->key) {
-        node->count++;
-    } else if (value < node->key) {
-        insert(node->left, value);
-    } else {
-        insert(node->right, value);
-    }
-}
-
-template<typename T>
-void BST<T>::insert(const T& value) {
-    insert(root, value);
-}
-
-template<typename T>
-bool BST<T>::search(Node* node, const T& value) const {
-    if (!node) return false;
-    if (value == node->key) return true;
-    return (value < node->key) ? search(node->left, value) : search(node->right, value);
-}
-
-template<typename T>
-bool BST<T>::search(T value) const {
-    return search(root, value);
-}
-
-template<typename T>
-int BST<T>::depth(Node* node) const {
-    if (!node) return 0;
-    int leftDepth = depth(node->left);
-    int rightDepth = depth(node->right);
-    return 1 + std::max(leftDepth, rightDepth);
-}
-
-template<typename T>
-int BST<T>::depth() const {
-    return depth(root);
-}
-
-template<typename T>
-void BST<T>::inorderTraverse(Node* node, std::vector<std::pair<T, int>>& result) const {
-    if (node) {
-        inorderTraverse(node->left, result);
-        result.push_back(std::make_pair(node->key, node->count));
-        inorderTraverse(node->right, result);
-    }
-}
-
-template<typename T>
-void BST<T>::getFrequencies(std::vector<std::pair<T, int>>& freqs) const {
-    freqs.clear();
-    inorderTraverse(root, freqs);
-}
-
-template<typename T>
-void BST<T>::clear(Node* node) {
-    if (node) {
-        clear(node->left);
-        clear(node->right);
-        delete node;
-    }
-}
-
-#endif // INCLUDE_BST_H_
+#endif  // INCLUDE_BST_H_
