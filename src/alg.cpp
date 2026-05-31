@@ -1,9 +1,10 @@
 // Copyright 2021 NNTU-CS
-#include  <iostream>
-#include  <fstream>
-#include  <locale>
-#include  <cstdlib>
-#include  "bst.h"
+#include "include/alg.h"
+#include <fstream>
+#include <iostream>
+#include <cctype>
+#include <string>
+#include <algorithm>
 
 void makeTree(BST<std::string>& tree, const char* filename) {
   std::ifstream file(filename);
@@ -27,6 +28,7 @@ void makeTree(BST<std::string>& tree, const char* filename) {
     }
   }
 
+  // Обрабатываем последнее слово, если файл не заканчивается не-буквой
   if (!currentWord.empty()) {
     tree.insert(currentWord);
   }
