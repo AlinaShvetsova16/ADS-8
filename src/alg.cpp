@@ -33,7 +33,7 @@ bool compareNodes(const BST<std::string>::Node* a, const BST<std::string>::Node*
 void printFreq(BST<std::string>& tree) {
     std::vector<BST<std::string>::Node*> wordList = tree.getAllNodes();
     std::sort(wordList.begin(), wordList.end(), compareNodes);
-    std::ofstream outFile("../result/freq.txt");
+    std::ofstream outFile("result/freq.txt");
     for (size_t i = 0; i < wordList.size(); ++i) {
         std::cout << wordList[i]->key << " : " << wordList[i]->count << std::endl;
         outFile << wordList[i]->key << " : " << wordList[i]->count << "\n";
